@@ -11,3 +11,6 @@ Route::get('/cart', [PageController::class, 'cart'])->name('cart');
 Route::get('/checkout', [PageController::class, 'checkout'])->name('checkout');
 Route::get('/orders', [PageController::class, 'orders'])->name('orders');
 Route::get('/wishlist', [PageController::class, 'wishlist'])->name('wishlist');
+Route::get('welcome', function () {
+    return view('welcome');
+})->name('welcome');

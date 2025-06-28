@@ -1,0 +1,235 @@
+/* ===== ShopNow Unified Theme CSS ===== */
+:root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary: #f97316;
+    --accent: #10b981;
+    --light-bg: #f1f5f9;
+    --light-text: #1e293b;
+    --light-border: #1e293b;
+    --dark-bg: #1e293b;
+    --dark-text: #f1f5f9;
+    --dark-border: #f1f5f9;
+    --white: #ffffff;
+    --gray: #64748b;
+    --danger: #dc3545;
+}
+
+/* Theme Bindings */
+[data-theme="light"] {
+    --bg-color: var(--light-bg);
+    --text-color: var(--light-text);
+    --border-color: var(--light-border);
+}
+[data-theme="dark"] {
+    --bg-color: var(--dark-bg);
+    --text-color: var(--dark-text);
+    --border-color: var(--dark-border);
+}
+
+/* General Layout */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    padding: 6rem 0;
+    border-radius: 0 0 2rem 2rem;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+.hero-shapes .shape-1,
+.hero-shapes .shape-2,
+.hero-shapes .shape-3 {
+    position: absolute;
+}
+.hero-shapes .shape-1 {
+    width: 300px; height: 300px; border-radius: 50%; top: -100px; right: -100px;
+}
+.hero-shapes .shape-2 {
+    width: 200px; height: 200px; border-radius: 20px; bottom: -50px; left: -50px; transform: rotate(45deg);
+}
+.hero-shapes .shape-3 {
+    width: 150px; height: 150px; border-radius: 30px; top: 50%; left: 30%; transform: rotate(30deg);
+}
+
+/* Cards */
+.card {
+    background-color: var(--white);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+.btn-primary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+}
+.btn-outline-danger {
+    color: var(--secondary);
+    border-color: var(--secondary);
+}
+.btn-outline-danger:hover {
+    background-color: var(--secondary);
+    color: var(--white);
+}
+
+/* Wishlist */
+.wishlist-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+.wishlist-btn.active {
+    background-color: rgba(249, 115, 22, 0.1);
+    color: var(--secondary);
+}
+.wishlist-item {
+    transition: transform 0.2s;
+}
+.wishlist-item:hover {
+    transform: translateY(-5px);
+}
+.remove-wishlist {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Cart */
+.quantity-control {
+    max-width: 140px;
+}
+.quantity-control .btn {
+    width: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cart-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.cart-item-remove {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.empty-cart-icon {
+    width: 120px;
+    height: 120px;
+    background-color: var(--white);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+@media (max-width: 768px) {
+    .cart-item-img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Tables & Forms */
+.table {
+    color: var(--text-color);
+}
+.table th, .table td {
+    border-color: var(--border-color);
+}
+.form-control, .form-select {
+    background-color: var(--white);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+/* Utilities */
+.footer {
+    margin-top: auto;
+    padding: 1rem 0;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.breadcrumb a {
+    text-decoration: none;
+    color: var(--primary);
+}
+.breadcrumb-item + .breadcrumb-item::before {
+    content: '›';
+    color: var(--text-color);
+}
+.theme-toggle {
+    cursor: pointer;
+    color: var(--primary);
+}
+.badge.bg-danger {
+    background-color: var(--secondary) !important;
+}
+.text-white-80 {
+    color: rgba(255, 255, 255, 0.8);
+}
+.animate__animated {
+    animation-duration: 1s;
+}
+.sticky-top {
+    position: sticky;
+    top: 20px;
+}
+.breadcrumb a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-color);
+}
