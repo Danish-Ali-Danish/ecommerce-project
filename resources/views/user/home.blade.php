@@ -29,32 +29,63 @@
     </div>
 </section>
 
-<!-- Categories Section -->
-<section class="py-5 bg-light">
+<!<!-- Categories Section -->
+<!-- Categories Carousel Section -->
+<section class="my-5">
     <div class="container">
-        <div class="section-header mb-5 text-center">
-            <h2 class="fw-bold mb-3">Shop By Categories</h2>
-            <p class="text-muted">Browse through our wide range of product categories</p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold">Shop by Category</h2>
+            <a href="{{ route('allcate') }}" class="btn btn-outline-primary btn-sm">View All Categories</a>
         </div>
-        <div class="row g-4" id="categories-section">
-            <!-- Loading skeleton -->
-            <div class="col-12">
-                <div class="row">
-                    @for($i=0; $i<6; $i++)
-                    <div class="col-6 col-md-3 col-lg-2 mb-4">
-                        <div class="card h-100 border-0 placeholder-glow">
-                            <div class="card-body p-3 text-center">
-                                <div class="mb-3 placeholder" style="height: 80px; width: 80px; margin: 0 auto;"></div>
-                                <h6 class="card-title placeholder mb-0" style="width: 80%"></h6>
+
+        <div class="position-relative">
+            <button class="btn btn-outline-secondary position-absolute top-50 start-0 translate-middle-y z-3" id="categoryPrev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="btn btn-outline-secondary position-absolute top-50 end-0 translate-middle-y z-3" id="categoryNext">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <div class="overflow-auto px-5" id="categoryCarousel" style="scroll-behavior: smooth; white-space: nowrap;">
+                @foreach ($categories as $category)
+                    <div class="d-inline-block me-3" style="width: 180px;">
+                        <div class="card h-100 shadow-sm text-center">
+                            @if ($category->file_path)
+                                <img src="{{ asset('storage/' . $category->file_path) }}"
+                                     class="card-img-top img-fluid rounded"
+                                     style="height: 120px; object-fit: cover;"
+                                     alt="{{ $category->name }}"
+                                     data-bs-toggle="modal"
+                             data-bs-target="#categoryModal"
+                             onclick="previewCategoryImage('{{ asset('storage/' . $category->file_path) }}')">
+
+                            @else
+                                <img src="{{ asset('images/default-category.png') }}"
+                                     class="card-img-top"
+                                     alt="Default Category">
+                            @endif
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1">{{ $category->name }}</h6>
+                                <a href="{{ route('products', $category->id) }}" class="btn btn-outline-primary btn-sm">Explore</a>
                             </div>
                         </div>
                     </div>
-                    @endfor
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
 </section>
+
+<!-- Category Image Preview Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-white rounded">
+      <div class="modal-body text-center">
+        <img id="previewImage" src="" class="img-fluid rounded shadow" alt="Category Preview">
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Brands Section -->
 <section class="py-5">
@@ -468,4 +499,24 @@
         });
     }
 </script>
+<script>
+  function previewCategoryImage(src) {
+    document.getElementById('previewImage').src = src;
+}
+
+</script>
+<script>
+    $(document).ready(function () {
+        const $carousel = $('#categoryCarousel');
+
+        $('#categoryPrev').on('click', function () {
+            $carousel.animate({ scrollLeft: '-=200' }, 300);
+        });
+
+        $('#categoryNext').on('click', function () {
+            $carousel.animate({ scrollLeft: '+=200' }, 300);
+        });
+    });
+</script>
+
 @endpush

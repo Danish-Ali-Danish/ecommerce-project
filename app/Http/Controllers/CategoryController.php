@@ -8,19 +8,21 @@ use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
+    protected $categories;
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
             return response()->json(Category::all());
         }
-        return view('categories.index');
+        return view('admin.categories.index');
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:categories,name',
-            'file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'file' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
 
         if ($validator->fails()) {

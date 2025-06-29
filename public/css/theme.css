@@ -233,3 +233,18 @@ body {
 .breadcrumb-item.active {
     color: var(--text-color);
 }
+
+    .category-thumbnail {
+        height: 180px;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+    }
+    .category-thumbnail:hover {
+        transform: scale(1.02);
+    }
+    .card-img-top:hover {
+        opacity: 0.9;
+        transition: 0.3s;
+    }
+    

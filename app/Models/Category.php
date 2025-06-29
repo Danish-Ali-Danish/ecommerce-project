@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'slug'];
+    use HasFactory;
 
-    public function products(): HasMany
+    protected $fillable = ['name', 'file_path'];  // Allow mass assignment for the 'name' field
+
+    public function brands()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Brand::class);
     }
 }

@@ -23,7 +23,7 @@ class ProductController extends Controller
 
         $categories = Category::all();
         $brands = Brand::all();
-        return view('products.index', compact('categories', 'brands'));
+        return view('admin.products.index', compact('categories', 'brands'));
     }
 
     /**

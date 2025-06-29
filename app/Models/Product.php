@@ -2,29 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = [
-        'name',
-        'description',
-        'price',
-        'image',
-        'stock',
-        'is_featured',
-        'category_id'
-    ];
+    use HasFactory;
 
-    public function category(): BelongsTo
+    protected $fillable = ['name', 'description', 'price', 'stock', 'category_id', 'brand_id', 'file_path'];
+
+    public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function reviews(): HasMany
+    public function brand()
     {
-        return $this->hasMany(Review::class);
+        return $this->belongsTo(Brand::class);
     }
 }

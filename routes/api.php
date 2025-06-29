@@ -8,6 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/categories', function () {
+        $categories = \App\Models\Category::select('id', 'name', DB::raw("CONCAT('/storage/', file_path) as image"))
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json(['categories' => $categories]);
+    });
+
     // Products
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'show']);

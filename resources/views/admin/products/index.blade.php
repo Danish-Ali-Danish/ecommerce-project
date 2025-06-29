@@ -165,7 +165,7 @@
 
         function fetchProducts() {
             $.ajax({
-                url: '{{ route("products.index") }}',
+                url: '{{ route("admin.products.index") }}',
                 method: 'GET',
                 success: function(data) {
                     renderProducts(data);

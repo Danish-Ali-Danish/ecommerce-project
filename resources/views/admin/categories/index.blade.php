@@ -1,4 +1,4 @@
-@extends('layout.app')
+@extends('admin.layout.app')
 @section('content')
 
 {{-- The main content area. The app-main class in app.blade.php handles the margin and padding. --}}
@@ -30,9 +30,9 @@
     </div>
 </div>
 {{-- Category Modal (Add/Edit) --}}
-@include('categories.edit')
+@include('admin.categories.edit')
 {{-- Delete Confirmation Modal --}}
-@include('categories.delete')
+@include('admin.categories.delete')
 
 
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
