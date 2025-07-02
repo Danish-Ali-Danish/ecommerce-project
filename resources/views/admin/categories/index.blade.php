@@ -5,10 +5,24 @@
 {{-- Using 'container' for Bootstrap's responsive fixed-width behavior, but overall layout handled by app-main --}}
 <div class="container dashboard-card ">
     <h2>Categories List</h2>
-    <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" id="addCategoryBtn">
-            <i class="fas fa-plus-circle"></i> Add New Category
-        </button>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div class="">
+            <input type="text" id="searchCategoryInput" class="form-control" placeholder="Search Categories by name...">
+        </div>
+        <div>
+            <label for="sortCategories" class="form-label me-2 fw-bold">Sort by:</label>
+            <select id="sortCategories" class="form-select w-auto d-inline-block">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="az">Name A–Z</option>
+                <option value="za">Name Z–A</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#categoriesModal" id="addCategoriesBtn">
+            <i class="fas fa-plus-circle"></i> Add Categories
+        </button>  
+
     </div>
 
     <div id="alertContainer"></div>
@@ -67,6 +81,8 @@
             const confirmDeleteBtn = $('#confirmDeleteBtn');
             const alertContainer = $('#alertContainer');
             const deleteCategoryName = $('#deleteCategoryName');
+            $('#sortCategories').on('change', fetchCategories);
+            $('#searchCategoryInput').on('keyup', fetchCategories);
 
             let currentCategoryIdToDelete = null;
 
@@ -130,18 +146,23 @@
 
             // Fetch Categories
             function fetchCategories() {
-                    $.ajax
-            ({
-                        url: '{{ route("categories.index") }}',
-                        method: 'GET',
-                        success: function(data) {
-                            renderCategories(data);
-                        },
-                        error: function(xhr) {
-                            showAlert('Error fetching categories: ' + (xhr.responseJSON ? xhr.responseJSON.message : xhr.statusText), 'danger');
-                            console.error('Error fetching categories:', xhr);
-                        }
-            });
+    const sort = $('#sortCategories').val();
+    const search = $('#searchCategoryInput').val();
+
+    $.ajax({
+        url: '{{ route("categories.index") }}',
+        method: 'GET',
+        data: {
+            sort: sort,
+            search: search
+        },
+        success: function(data) {
+            renderCategories(data);
+        },
+        error: function(xhr) {
+            showAlert('Error fetching categories.', 'danger');
+        }
+    });
 }
 
             // Save Category (Add or Update)

@@ -12,9 +12,33 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            return response()->json(Category::all());
+        $sort = $request->get('sort', 'newest');
+        $search = $request->get('search');
+
+        $query = Category::query();
+
+        if (!empty($search)) {
+            $query->where('name', 'like', '%' . $search . '%');
         }
+
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'az':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'za':
+                $query->orderBy('name', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        if ($request->ajax()) {
+            return response()->json($query->get());
+        }
+
         return view('admin.categories.index');
     }
 

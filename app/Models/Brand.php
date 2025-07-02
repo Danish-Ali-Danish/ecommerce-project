@@ -12,7 +12,8 @@ class Brand extends Model
     // These columns are fillable (can be mass assigned)
     protected $fillable = [
         'name',
-        'category_id',  // Ensure 'category_id' is here since you're adding it
+        'category_id',
+        'file_path',  // Added image file path
     ];
 
     /**
@@ -22,5 +23,15 @@ class Brand extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Accessor to return full image URL (optional helper)
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->file_path
+            ? asset('storage/' . $this->file_path)
+            : asset('images/default.png');  // fallback image if not uploaded
     }
 }
