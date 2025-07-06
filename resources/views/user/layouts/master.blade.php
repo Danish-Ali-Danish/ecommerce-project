@@ -31,7 +31,7 @@
                         <div id="searchResults" class="list-group position-absolute w-100 z-3 shadow-sm" style="top: 100%; display: none;"></div>
                     </div>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url(path: '/') }}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url('/products') }}">Products</a></li>
                 <li class="nav-item position-relative">
     <a class="nav-link" href="{{ url('/cart') }}">

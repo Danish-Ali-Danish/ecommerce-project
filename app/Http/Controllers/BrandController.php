@@ -54,7 +54,7 @@ class BrandController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:brands,name',
             'category_id' => 'required|exists:categories,id',
-            'file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'file' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
 
         if ($validator->fails()) {

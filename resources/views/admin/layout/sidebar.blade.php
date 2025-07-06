@@ -16,6 +16,11 @@
             <li class="{{ request()->routeIs('brands.index') ? 'active' : '' }}">
                 <a href="{{ route('brands.index') }}"><i class="bi bi-tags me-2"></i>Brands</a>
             </li>
+            <!-- Product Management -->
+            <li class="{{ request()->routeIs('products.index') ? 'active' : '' }}">
+                <a href="{{ route('products.index') }}"><i class="bi bi-box-seam me-2"></i>Products</a>
+            </li>
+
 
            
           

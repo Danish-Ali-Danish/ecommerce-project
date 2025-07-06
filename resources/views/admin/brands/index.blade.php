@@ -7,26 +7,14 @@
     </div> -->
 
     <div id="alertContainer"></div>
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div class="">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search brand by name...">
-        </div>
-        <div>
-            <label for="sortBrands" class="form-label me-2 fw-bold">Sort by:</label>
-            <select id="sortBrands" class="form-select w-auto d-inline-block">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="az">Name A–Z</option>
-                <option value="za">Name Z–A</option>
-            </select>
-        </div>
-
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#brandModal" id="addBrandBtn">
-            <i class="fas fa-plus-circle"></i> Add Brand
-        </button>  
-
-    </div>
-
+    <x-admin.search-sort 
+    searchId="searchBrandInput" 
+    sortId="sortBrandSelect" 
+    modalId="addBrandModal" 
+    addBtnId="addBrandBtn" 
+    addLabel="Add Brand"
+    placeholder="Search brands..."
+/>
     <div class="table-responsive d-flex justify-content-center gap-2">
         <table class="table table-bordered table-striped table-hover">
             <thead class="table-dark">

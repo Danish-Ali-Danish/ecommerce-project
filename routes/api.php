@@ -1,46 +1,10 @@
 <?php
 
-use App\Http\Controllers\User\CartController;
-use App\Http\Controllers\User\OrderController;
-use App\Http\Controllers\User\ProductController;
-use App\Http\Controllers\User\WishlistController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\BrandApiController;
+use App\Http\Controllers\Api\CategoryApiController;
+use App\Http\Controllers\Api\ProductApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/categories', function () {
-        $categories = \App\Models\Category::select('id', 'name', DB::raw("CONCAT('/storage/', file_path) as image"))
-            ->orderBy('id', 'desc')
-            ->get();
-
-        return response()->json(['categories' => $categories]);
-    });
-
-    // Products
-    Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/products/{id}', [ProductController::class, 'show']);
-    Route::get('/products/featured', [ProductController::class, 'featured']);
-    Route::get('/search', [ProductController::class, 'search']);
-
-    // Cart
-    Route::prefix('cart')->group(function () {
-        Route::get('/', [CartController::class, 'index']);
-        Route::post('/add', [CartController::class, 'store']);
-        Route::post('/update', [CartController::class, 'update']);
-        Route::post('/remove', [CartController::class, 'destroy']);
-        Route::get('/count', [CartController::class, 'count']);
-    });
-
-    // Orders
-    Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'index']);
-        Route::post('/place', [OrderController::class, 'store']);
-        Route::get('/{id}/invoice', [OrderController::class, 'invoice']);
-    });
-
-    // Wishlist
-    Route::prefix('wishlist')->group(function () {
-        Route::get('/', [WishlistController::class, 'index']);
-        Route::post('/toggle', [WishlistController::class, 'toggle']);
-    });
-});
+Route::get('/categories', [CategoryApiController::class, 'index']);
+Route::get('/brands', [BrandApiController::class, 'index']);
+Route::get('/featured-products', [ProductApiController::class, 'featured']);
