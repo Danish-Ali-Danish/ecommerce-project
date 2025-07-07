@@ -12,7 +12,7 @@
                 <h1 class="display-4 fw-bold mb-4 text-white animate__animated animate__fadeInDown">Welcome to ShopNow</h1>
                 <p class="lead text-white-80 mb-5 animate__animated animate__fadeIn animate__delay-1s">Discover the best deals on top-rated products with free shipping on orders over $50</p>
                 <div class="d-flex justify-content-center gap-3 animate__animated animate__fadeIn animate__delay-2s">
-                    <a href="{{ route('products') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-medium shadow-sm">
+                    <a href="{{ route('allproducts') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-medium shadow-sm">
                         Shop Now <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                     <a href="#featured-products" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-medium">
@@ -31,53 +31,7 @@
 
 <!<!-- Categories Section -->
 <!-- Categories Carousel Section -->
-<section class="my-5">
-    <div class="container position-relative">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="fw-bold">Shop by Category</h2>
-            <a href="{{ route('allcate') }}" class="btn btn-outline-primary btn-sm">View All Categories</a>
-        </div>
-
-        <div class="position-relative">
-            <div class="d-flex align-items-center">
-                <button class="btn btn-outline-secondary me-2 d-none d-md-inline" id="categoryPrev">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                <div class="flex-grow-1 overflow-auto px-2" id="categoryCarousel" style="scroll-behavior: smooth; white-space: nowrap;">
-                    @foreach ($categories as $category)
-                        <div class="d-inline-block me-3" style="width: 180px;">
-                            <div class="card h-100 shadow-sm text-center">
-                                @if ($category->file_path)
-                                    <img src="{{ asset('storage/' . $category->file_path) }}"
-                                         class="card-img-top img-fluid rounded"
-                                         style="height: 120px; object-fit: cover; cursor: pointer;"
-                                         alt="{{ $category->name }}"
-                                         data-bs-toggle="modal"
-                                         data-bs-target="#categoryModal"
-                                         onclick="previewCategoryImage('{{ asset('storage/' . $category->file_path) }}')">
-                                @else
-                                    <img src="{{ asset('images/default-category.png') }}"
-                                         class="card-img-top"
-                                         alt="Default Category">
-                                @endif
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">{{ $category->name }}</h6>
-                                    <a href="{{ route('products', $category->id) }}" class="btn btn-outline-primary btn-sm">Explore</a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                <button class="btn btn-outline-secondary ms-2 d-none d-md-inline" id="categoryNext">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
+@include('user.carouselSection.categories-carousel')
 
 <!-- Category Image Preview Modal -->
 <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
@@ -91,52 +45,7 @@
 </div>
 
 <!-- Brands Section -->
-<section class="my-5">
-    <div class="container position-relative">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="fw-bold">Shop by Brand</h2>
-            <a href="{{ route('allbrands') }}" class="btn btn-outline-primary btn-sm">View All Brands</a>
-        </div>
-
-        <div class="position-relative">
-            <div class="d-flex align-items-center">
-                <button class="btn btn-outline-secondary me-2 d-none d-md-inline" id="brandPrev">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                <div class="flex-grow-1 overflow-auto px-2" id="brandCarousel" style="scroll-behavior: smooth; white-space: nowrap; overflow-y: hidden;">
-                    @foreach ($brands as $brand)
-                        <div class="d-inline-block me-3" style="width: 180px;">
-                            <div class="card h-100 shadow-sm text-center">
-                                @if ($brand->file_path)
-                                    <img src="{{ asset('storage/' . $brand->file_path) }}"
-                                         class="card-img-top img-fluid rounded"
-                                         style="height: 120px; object-fit: cover; cursor: pointer;"
-                                         alt="{{ $brand->name }}"
-                                         data-bs-toggle="modal"
-                                         data-bs-target="#brandModal"
-                                         onclick="previewBrandImage('{{ asset('storage/' . $brand->file_path) }}')">
-                                @else
-                                    <img src="{{ asset('images/default-brand.png') }}"
-                                         class="card-img-top"
-                                         alt="Default Brand">
-                                @endif
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1">{{ $brand->name }}</h6>
-                                    <a href="{{ route('products', $brand->id) }}" class="btn btn-outline-primary btn-sm">Explore</a>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                <button class="btn btn-outline-secondary ms-2 d-none d-md-inline" id="brandNext">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
+@include('user.carouselSection.brands-carousel')
 <!-- Brand Image Preview Modal -->
 <div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -148,58 +57,11 @@
   </div>
 </div>
 
-<!-- Featured Products -->
-<section class="py-5 bg-light" id="featured-products-section">
-    <div class="container">
-        <div class="section-header mb-5 text-center">
-            <h2 class="fw-bold mb-3">Featured Products</h2>
-            <p class="text-muted">Handpicked products just for you</p>
-        </div>
-        <div class="row g-4" id="featured-products">
-            <!-- Loading skeleton -->
-            @for($i=0; $i<3; $i++)
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 border-0 shadow-sm placeholder-glow">
-                    <div class="placeholder" style="height: 250px;"></div>
-                    <div class="card-body">
-                        <h5 class="card-title placeholder" style="width: 80%"></h5>
-                        <p class="card-text placeholder mb-2" style="width: 60%"></p>
-                        <div class="d-flex justify-content-between">
-                            <div class="placeholder" style="width: 40%; height: 38px;"></div>
-                            <div class="placeholder" style="width: 38px; height: 38px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endfor
-        </div>
-        <div class="text-center mt-5">
-            <a href="{{ route('products') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
-                View All Products <i class="fas fa-arrow-right ms-2"></i>
-            </a>
-        </div>
-    </div>
-</section>
+<!-- Featured Products Section -->
+@include('user.partials.featured-products')
 
 <!-- Newsletter Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="fw-bold mb-4">Subscribe to Our Newsletter</h2>
-                <p class="mb-5">Get the latest updates on new products and upcoming sales</p>
-                <form id="newsletter-form" class="row g-3 justify-content-center">
-                    <div class="col-md-8">
-                        <div class="input-group">
-                            <input type="email" class="form-control form-control-lg" placeholder="Your email address" required>
-                            <button class="btn btn-dark btn-lg px-4" type="submit">Subscribe</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</section>
+@include('user.partials.newsletter')
 
 @endsection
 

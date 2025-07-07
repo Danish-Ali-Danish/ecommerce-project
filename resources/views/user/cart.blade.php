@@ -1,3 +1,4 @@
+
 @extends('user.layouts.master')
 
 @section('title', 'Your Cart - ShopNow')

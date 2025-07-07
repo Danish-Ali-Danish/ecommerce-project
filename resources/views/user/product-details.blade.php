@@ -8,7 +8,7 @@
     <h1 class="text-center text-white display-6">Shop Detail</h1>
     <ol class="breadcrumb justify-content-center mb-0">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ url('/products') }}">Products</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/allproducts') }}">Products</a></li>
         <li class="breadcrumb-item active text-white">Shop Detail</li>
     </ol>
 </div>

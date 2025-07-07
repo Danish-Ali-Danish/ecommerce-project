@@ -22,7 +22,7 @@
                     @endif
                     <div class="card-body">
                         <h5 class="card-title">{{ $brand->name }}</h5>
-                        <a href="{{ route('products', $brand->id) }}" class="btn btn-outline-primary btn-sm">Explore</a>
+                        <a href="{{ route('allproducts', $brand->id) }}" class="btn btn-outline-primary btn-sm">Explore</a>
                     </div>
                 </div>
             </div>

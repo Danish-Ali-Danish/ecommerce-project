@@ -1,18 +1,17 @@
 @extends('admin.layout.app')
-@section('content')
 
+@section('content')
 <div class="container dashboard-card ">
     <h2>Categories List</h2>
-    
-          <x-admin.search-sort 
-    searchId="searchCategoryInput" 
-    sortId="sortCategories" 
-    placeholder="Search Categories by name..." 
-    modalId="categoryModal" 
-    addBtnId="addCategoryBtn" 
-    addLabel="Add Category" 
-/>
 
+    <x-admin.search-sort 
+        searchId="searchCategoryInput" 
+        sortId="sortCategories" 
+        placeholder="Search Categories by name..." 
+        modalId="categoryModal" 
+        addBtnId="addCategoryBtn" 
+        addLabel="Add Category" 
+    />
 
     <div id="alertContainer"></div>
 
@@ -26,14 +25,12 @@
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody id="categoryTableBody">
-            </tbody>
+            <tbody id="categoryTableBody"></tbody>
         </table>
     </div>
 </div>
 
 @include('admin.categories.edit')
-@include('admin.categories.delete')
 
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -48,26 +45,20 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function () {
     const categoryTableBody = $('#categoryTableBody');
     const categoryModal = new bootstrap.Modal($('#categoryModal')[0]);
-    const deleteConfirmModal = new bootstrap.Modal($('#deleteConfirmModal')[0]);
     const categoryForm = $('#categoryForm');
     const categoryIdInput = $('#categoryId');
     const categoryNameInput = $('#categoryName');
     const categoryModalLabel = $('#categoryModalLabel');
     const addCategoryBtn = $('#addCategoryBtn');
     const saveCategoryBtn = $('#saveCategoryBtn');
-    const confirmDeleteBtn = $('#confirmDeleteBtn');
-    const alertContainer = $('#alertContainer');
-    const deleteCategoryName = $('#deleteCategoryName');
-
-    let currentCategoryIdToDelete = null;
 
     $.ajaxSetup({
         headers: {
@@ -79,17 +70,16 @@ $(document).ready(function () {
     $('#searchCategoryInput').on('keyup', fetchCategories);
 
     function showAlert(message, type = 'success') {
-        const alertDiv = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-        alertContainer.html('');
-        alertContainer.append(alertDiv);
-        setTimeout(() => {
-            alertContainer.find('.alert').alert('close');
-        }, 5000);
+        Swal.fire({
+            icon: type,
+            title: type.charAt(0).toUpperCase() + type.slice(1),
+            html: message,
+            timer: 4000,
+            timerProgressBar: true,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+        });
     }
 
     function clearForm() {
@@ -135,8 +125,8 @@ $(document).ready(function () {
             success: function (data) {
                 renderCategories(data);
             },
-            error: function (xhr) {
-                showAlert('Error fetching categories.', 'danger');
+            error: function () {
+                showAlert('Error fetching categories.', 'error');
             }
         });
     }
@@ -165,7 +155,7 @@ $(document).ready(function () {
             data: formData,
             processData: false,
             contentType: false,
-            success: function (response) {
+            success: function () {
                 showAlert('Category ' + (id ? 'updated' : 'added') + ' successfully!', 'success');
                 categoryModal.hide();
                 clearForm();
@@ -173,7 +163,7 @@ $(document).ready(function () {
             },
             error: function (xhr) {
                 const errorMessage = xhr.responseJSON?.errors?.name?.[0] || xhr.responseJSON?.message || xhr.statusText;
-                showAlert('Error saving category: ' + errorMessage, 'danger');
+                showAlert('Error saving category: ' + errorMessage, 'error');
             }
         });
     });
@@ -189,46 +179,50 @@ $(document).ready(function () {
                 categoryModalLabel.text('Edit Category');
                 categoryModal.show();
             },
-            error: function (xhr) {
-                showAlert('Error fetching category for edit: ' + (xhr.responseJSON ? xhr.responseJSON.message : xhr.statusText), 'danger');
+            error: function () {
+                showAlert('Error fetching category for edit.', 'error');
             }
         });
     });
 
     $(document).on('click', '.delete-btn', function () {
-        currentCategoryIdToDelete = $(this).data('id');
-        deleteCategoryName.text($(this).data('name'));
-        deleteConfirmModal.show();
-    });
+        const id = $(this).data('id');
+        const name = $(this).data('name');
 
-    confirmDeleteBtn.on('click', function () {
-        if (currentCategoryIdToDelete) {
-            $.ajax({
-                url: `/categories/${currentCategoryIdToDelete}`,
-                method: 'POST',
-                data: {
-                    _method: 'DELETE',
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function (response) {
-                    showAlert(response.message || 'Category deleted!', 'success');
-                    deleteConfirmModal.hide();
-                    fetchCategories();
-                    currentCategoryIdToDelete = null;
-                },
-                error: function (xhr) {
-                    showAlert('Error deleting category: ' + (xhr.responseJSON ? xhr.responseJSON.message : xhr.statusText), 'danger');
-                }
-            });
-        } else {
-            showAlert('No category selected for deletion.', 'warning');
-            deleteConfirmModal.hide();
-        }
+        Swal.fire({
+            title: `Delete "${name}"?`,
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/categories/${id}`,
+                    method: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function () {
+                        showAlert('Category deleted successfully!', 'success');
+                        fetchCategories();
+                    },
+                    error: function (xhr) {
+                        const msg = xhr.responseJSON?.message || 'Failed to delete category.';
+                        showAlert(msg, 'error');
+                    }
+                });
+            }
+        });
     });
 
     addCategoryBtn.on('click', function () {
         clearForm();
         categoryModalLabel.text('Add New Category');
+        categoryModal.show();
     });
 
     fetchCategories();

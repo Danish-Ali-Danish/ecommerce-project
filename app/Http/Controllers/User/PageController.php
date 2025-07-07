@@ -11,9 +11,9 @@ class PageController extends Controller
         return view('user.home');
     }
 
-    public function products()
+    public function allproducts()
     {
-        return view('user.products');
+        return view('user.allproducts');
     }
 
     public function productDetails($id)

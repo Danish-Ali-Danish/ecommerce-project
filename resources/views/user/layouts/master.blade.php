@@ -18,7 +18,7 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-        <a class="navbar-brand fw-bold text-primary" href="{{ url('/') }}">ShopNow</a>
+        <a class="navbar-brand fw-bold text-primary" href="{{ url('/home') }}">ShopNow</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -31,8 +31,8 @@
                         <div id="searchResults" class="list-group position-absolute w-100 z-3 shadow-sm" style="top: 100%; display: none;"></div>
                     </div>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="{{ url(path: '/') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/products') }}">Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url(path: '/home') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url('/allproducts') }}">Products</a></li>
                 <li class="nav-item position-relative">
     <a class="nav-link" href="{{ url('/cart') }}">
         <i class="fas fa-shopping-cart"></i> Cart

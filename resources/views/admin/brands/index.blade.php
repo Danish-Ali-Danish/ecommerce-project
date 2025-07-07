@@ -1,20 +1,27 @@
 @extends('admin.layout.app')
+
 @section('content')
 <div class="container dashboard-card">
     <h2>Brand List</h2>
-    <!-- <div class="d-flex justify-content-end mb-3">
-     
-    </div> -->
 
-    <div id="alertContainer"></div>
-    <x-admin.search-sort 
-    searchId="searchBrandInput" 
-    sortId="sortBrandSelect" 
-    modalId="addBrandModal" 
-    addBtnId="addBrandBtn" 
-    addLabel="Add Brand"
-    placeholder="Search brands..."
-/>
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search brand by name...">
+        </div>
+        <div>
+            <label for="sortBrands" class="form-label me-2 fw-bold">Sort by:</label>
+            <select id="sortBrands" class="form-select w-auto d-inline-block">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="az">Name A–Z</option>
+                <option value="za">Name Z–A</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" id="addBrandBtn">
+            <i class="fas fa-plus-circle"></i> Add Brand
+        </button>
+    </div>
+
     <div class="table-responsive d-flex justify-content-center gap-2">
         <table class="table table-bordered table-striped table-hover">
             <thead class="table-dark">
@@ -26,16 +33,56 @@
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody id="brandTableBody">
-                <!-- Populated via JS -->
-            </tbody>
+            <tbody id="brandTableBody"></tbody>
         </table>
     </div>
 </div>
 
-@include('admin.brands.edit')
-@include('admin.brands.delete')
+{{-- ✅ Add/Edit Brand Modal --}}
+<div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="brandModalLabel">Add New Brand</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
+            <div class="modal-body">
+                <form id="brandForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" id="brandId" name="id">
+
+                    <div class="mb-3">
+                        <label for="brandName" class="form-label">Brand Name</label>
+                        <input type="text" class="form-control" id="brandName" name="name" placeholder="Enter brand name">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="brandCategory" class="form-label">Category</label>
+                        <select id="brandCategory" name="category_id" class="form-select">
+                            <option value="">Select Category</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="brandFile" class="form-label">Brand Image</label>
+                        <input type="file" class="form-control" id="brandFile" name="file" accept="image/*">
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveBrandBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ✅ File Preview Modal --}}
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -52,11 +99,11 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
     const brandModal = new bootstrap.Modal($('#brandModal')[0]);
-    const deleteBrandModal = new bootstrap.Modal($('#deleteBrandModal')[0]);
-
     const brandForm = $('#brandForm');
     const brandIdInput = $('#brandId');
     const brandNameInput = $('#brandName');
@@ -64,11 +111,6 @@ $(document).ready(function() {
     const brandModalLabel = $('#brandModalLabel');
     const saveBrandBtn = $('#saveBrandBtn');
     const addBrandBtn = $('#addBrandBtn');
-    const confirmDeleteBtn = $('#confirmDeleteBrandBtn');
-    const alertContainer = $('#alertContainer');
-    const deleteBrandName = $('#deleteBrandName');
-    $('#sortBrands').on('change', fetchBrands);
-    
     let currentBrandIdToDelete = null;
 
     $.ajaxSetup({
@@ -76,13 +118,16 @@ $(document).ready(function() {
     });
 
     function showAlert(message, type = 'success') {
-        const alertDiv = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>`;
-        alertContainer.html(alertDiv);
-        setTimeout(() => $('.alert').alert('close'), 4000);
+        Swal.fire({
+            icon: type,
+            title: type.charAt(0).toUpperCase() + type.slice(1),
+            html: message,
+            timer: 4000,
+            timerProgressBar: true,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+        });
     }
 
     function clearForm() {
@@ -96,56 +141,46 @@ $(document).ready(function() {
         tbody.empty();
         if (brands.length === 0) {
             tbody.append('<tr><td colspan="5" class="text-center">No brands found.</td></tr>');
-        } else {
-            $.each(brands, function(index, brand) {
-                const imageUrl = brand.file_path ? `/storage/${brand.file_path}` : '/images/default.png';
-                const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${brand.name}</td>
-                        <td>${brand.category.name}</td>
-                        <td>${brand.file_path ? `<img src="${imageUrl}" alt="${brand.name}" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="${imageUrl}">` : 'No Image'}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-info edit-btn" data-id="${brand.id}"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-sm btn-danger delete-btn" data-id="${brand.id}" data-name="${brand.name}"><i class="fas fa-trash-alt"></i> Delete</button>
-                        </td>
-                    </tr>`;
-                tbody.append(row);
-            });
+            return;
         }
+
+        $.each(brands, function(index, brand) {
+            const imageUrl = brand.file_path ? `/storage/${brand.file_path}` : '/images/default.png';
+            const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${brand.name}</td>
+                    <td>${brand.category.name}</td>
+                    <td>${brand.file_path ? `<img src="${imageUrl}" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="${imageUrl}">` : 'No Image'}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-info edit-btn" data-id="${brand.id}"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="${brand.id}" data-name="${brand.name}"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                </tr>`;
+            tbody.append(row);
+        });
     }
 
     function fetchBrands() {
-    const sortOption = $('#sortBrands').val(); // Get selected sort option
+        const sort = $('#sortBrands').val();
+        $.get('{{ route("brands.index") }}', { sort }, function(data) {
+            renderBrands(data);
+        }).fail(() => showAlert('Failed to load brands.', 'error'));
+    }
 
-    $.get('{{ route("brands.index") }}', { sort: sortOption }, function(data) {
-        renderBrands(data);
-    }).fail(function(xhr) {
-        showAlert('Failed to load brands.', 'danger');
+    $('#searchInput').on('keyup', function() {
+        const search = $(this).val();
+        $.get('{{ route("brands.index") }}', { search }, function(data) {
+            renderBrands(data);
+        }).fail(() => showAlert('Search failed.', 'error'));
     });
-    }$('#searchInput').on('keyup', function() {
-        let search = $(this).val();
-        $.ajax({
-            url: "{{ route('brands.index') }}",
-            method: "GET",
-            data: { search: search },
-            success: function(data) {
-                renderBrands(data);
-            },
-            error: function() {
-                alert('Search failed!');
-            }
-        });
-    });
-
-
 
     saveBrandBtn.on('click', function(e) {
         e.preventDefault();
         const id = brandIdInput.val();
         const name = brandNameInput.val().trim();
         const category_id = brandCategoryInput.val();
-        const file = $('#brandFile')[0].files[0];
+        const file = $('#brandFile')[0]?.files[0];
 
         if (!name || !category_id) {
             showAlert('All fields are required.', 'warning');
@@ -155,7 +190,6 @@ $(document).ready(function() {
         const formData = new FormData();
         formData.append('name', name);
         formData.append('category_id', category_id);
-        formData.append('_token', '{{ csrf_token() }}');
         if (file) formData.append('file', file);
         if (id) formData.append('_method', 'PUT');
 
@@ -165,14 +199,23 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
-                showAlert('Brand ' + (id ? 'updated' : 'added') + ' successfully!');
+            success: function() {
+                showAlert(`Brand ${id ? 'updated' : 'added'} successfully!`, 'success');
                 brandModal.hide();
                 clearForm();
                 fetchBrands();
             },
             error: function(xhr) {
-                showAlert('Failed to save brand.', 'danger');
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON.errors;
+                    let errorHtml = '';
+                    $.each(errors, function(key, messages) {
+                        errorHtml += `<div>${messages.join('<br>')}</div>`;
+                    });
+                    showAlert(errorHtml, 'error');
+                } else {
+                    showAlert('Failed to save brand.', 'error');
+                }
             }
         });
     });
@@ -185,47 +228,53 @@ $(document).ready(function() {
             brandCategoryInput.val(brand.category_id);
             brandModalLabel.text('Edit Brand');
             brandModal.show();
-        }).fail(function() {
-            showAlert('Failed to fetch brand.', 'danger');
-        });
+        }).fail(() => showAlert('Failed to fetch brand.', 'error'));
     });
 
     $(document).on('click', '.delete-btn', function() {
-        currentBrandIdToDelete = $(this).data('id');
-        deleteBrandName.text($(this).data('name'));
-        deleteBrandModal.show();
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+
+        Swal.fire({
+            title: `Delete "${name}"?`,
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/brands/${id}`,
+                    method: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function() {
+                        showAlert('Brand deleted successfully!', 'success');
+                        fetchBrands();
+                    },
+                    error: function() {
+                        showAlert('Failed to delete brand.', 'error');
+                    }
+                });
+            }
+        });
     });
 
-    confirmDeleteBtn.on('click', function() {
-        if (currentBrandIdToDelete) {
-            $.ajax({
-                url: `/brands/${currentBrandIdToDelete}`,
-                method: 'POST',
-                data: {
-                    _method: 'DELETE',
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    showAlert('Brand deleted successfully!');
-                    deleteBrandModal.hide();
-                    fetchBrands();
-                },
-                error: function() {
-                    showAlert('Failed to delete brand.', 'danger');
-                }
-            });
-        }
-    });
-
-    addBrandBtn.on('click', function() {
+    addBrandBtn.on('click', function () {
         clearForm();
+        brandModal.show(); // ✅ Manual modal open
     });
 
-    $(document).on('click', '.file-preview', function() {
-        const src = $(this).data('src');
-        $('#previewImage').attr('src', src);
+    $(document).on('click', '.file-preview', function () {
+        $('#previewImage').attr('src', $(this).data('src'));
         new bootstrap.Modal($('#filePreviewModal')).show();
     });
+
+    $('#sortBrands').on('change', fetchBrands);
 
     fetchBrands();
 });
