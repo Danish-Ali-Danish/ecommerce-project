@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 class CategoryController extends Controller
 {
@@ -12,31 +13,25 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $sort = $request->get('sort', 'newest');
-        $search = $request->get('search');
-
-        $query = Category::query();
-
-        if (!empty($search)) {
-            $query->where('name', 'like', '%' . $search . '%');
-        }
-
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'az':
-                $query->orderBy('name', 'asc');
-                break;
-            case 'za':
-                $query->orderBy('name', 'desc');
-                break;
-            default:
-                $query->orderBy('created_at', 'desc');
-        }
-
         if ($request->ajax()) {
-            return response()->json($query->get());
+            $data = Category::latest()->get();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('file', function ($row) {
+                    if ($row->file_path) {
+                        return '<img src="/storage/' . $row->file_path . '" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="/storage/' . $row->file_path . '">';
+                    } else {
+                        return 'No File';
+                    }
+                })
+                ->addColumn('action', function ($row) {
+                    return '
+                        <button class="btn btn-sm btn-info edit-btn" data-id="' . $row->id . '"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="' . $row->id . '" data-name="' . $row->name . '"><i class="fas fa-trash-alt"></i> Delete</button>
+                    ';
+                })
+                ->rawColumns(['file', 'action'])
+                ->make(true);
         }
 
         return view('admin.categories.index');

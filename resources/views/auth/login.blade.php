@@ -10,9 +10,6 @@
                 </div>
 
                 <div class="card-body px-5 py-4">
-                    <div class="mb-4">
-    @include('components.alert')
-</div>
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
@@ -68,4 +65,38 @@
     </div>
 </div>
 
+{{-- ✅ SweetAlert2 JS --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const success = @json(session('success'));
+        const error = @json(session('error'));
+
+        if (success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: success,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+    });
+</script>
 @endsection

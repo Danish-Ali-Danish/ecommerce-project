@@ -7,46 +7,39 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\DataTables;
 
 class BrandController extends Controller
 {
     public function index(Request $request)
     {
-        $sort = $request->get('sort', 'newest');
-        $search = $request->get('search');
-
-        $query = Brand::with('category');
-
-        // 🔍 Apply search if provided
-        if (!empty($search)) {
-            $query->where('name', 'like', '%' . $search . '%');
-        }
-
-        // ⬇️ Apply sorting
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'az':
-                $query->orderBy('name', 'asc');
-                break;
-            case 'za':
-                $query->orderBy('name', 'desc');
-                break;
-            default:  // newest
-                $query->orderBy('created_at', 'desc');
-        }
-
-        // 🔁 For AJAX request return JSON
         if ($request->ajax()) {
-            return response()->json($query->get());
+            $data = Brand::with('category')->latest()->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('category.name', function ($row) {
+                    return $row->category->name ?? '—';
+                })
+                ->addColumn('file_path', function ($row) {
+                    return '<img src="/storage/' . $row->file_path . '" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="/storage/' . $row->file_path . '">';
+                })
+                ->addColumn('action', function ($row) {
+                    return '
+                    <button class="btn btn-sm btn-info edit-btn" data-id="' . $row->id . '">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger delete-btn" data-id="' . $row->id . '">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                ';
+                })
+                ->rawColumns(['file_path', 'action', 'category.name'])  // Allow raw HTML
+                ->make(true);
         }
 
-        // 🖥️ Normal page load
-        $brands = $query->get();
         $categories = Category::all();
-
-        return view('admin.brands.index', compact('brands', 'categories'));
+        return view('admin.brands.index', compact('categories'));
     }
 
     public function store(Request $request)

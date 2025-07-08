@@ -2,28 +2,18 @@
 
 @section('content')
 <div class="container dashboard-card">
-    <h2>Brand List</h2>
+    <h2>Brands List</h2>
 
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div>
-            <input type="text" id="searchInput" class="form-control" placeholder="Search brand by name...">
-        </div>
-        <div>
-            <label for="sortBrands" class="form-label me-2 fw-bold">Sort by:</label>
-            <select id="sortBrands" class="form-select w-auto d-inline-block">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="az">Name A–Z</option>
-                <option value="za">Name Z–A</option>
-            </select>
-        </div>
+    <div class="mb-3 d-flex justify-content-end">
         <button class="btn btn-primary" id="addBrandBtn">
-            <i class="fas fa-plus-circle"></i> Add Brand
+            <i class="fas fa-plus-circle me-1"></i> Add Brand
         </button>
     </div>
 
-    <div class="table-responsive d-flex justify-content-center gap-2">
-        <table class="table table-bordered table-striped table-hover">
+    <div id="alertContainer"></div>
+
+    <div class="table-responsive">
+        <table id="brandTable" class="table table-striped table-hover w-100">
             <thead class="table-dark">
                 <tr>
                     <th>#</th>
@@ -33,54 +23,11 @@
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody id="brandTableBody"></tbody>
         </table>
     </div>
 </div>
 
-{{-- ✅ Add/Edit Brand Modal --}}
-<div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="brandModalLabel">Add New Brand</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <form id="brandForm" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" id="brandId" name="id">
-
-                    <div class="mb-3">
-                        <label for="brandName" class="form-label">Brand Name</label>
-                        <input type="text" class="form-control" id="brandName" name="name" placeholder="Enter brand name">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="brandCategory" class="form-label">Category</label>
-                        <select id="brandCategory" name="category_id" class="form-select">
-                            <option value="">Select Category</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="brandFile" class="form-label">Brand Image</label>
-                        <input type="file" class="form-control" id="brandFile" name="file" accept="image/*">
-                    </div>
-                </form>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="saveBrandBtn">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
+@include('admin.brands.edit')
 
 {{-- ✅ File Preview Modal --}}
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
@@ -100,21 +47,30 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-$(document).ready(function() {
+$(document).ready(function () {
     const brandModal = new bootstrap.Modal($('#brandModal')[0]);
     const brandForm = $('#brandForm');
     const brandIdInput = $('#brandId');
     const brandNameInput = $('#brandName');
     const brandCategoryInput = $('#brandCategory');
-    const brandModalLabel = $('#brandModalLabel');
     const saveBrandBtn = $('#saveBrandBtn');
     const addBrandBtn = $('#addBrandBtn');
-    let currentBrandIdToDelete = null;
 
-    $.ajaxSetup({
-        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+    const brandTable = $('#brandTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("brands.index") }}',
+        columns: [
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'name', name: 'name' },
+            { data: 'category.name', name: 'category.name' },
+            { data: 'file_path', name: 'file_path', orderable: false, searchable: false },
+            { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
+        ]
     });
 
     function showAlert(message, type = 'success') {
@@ -133,49 +89,10 @@ $(document).ready(function() {
     function clearForm() {
         brandForm[0].reset();
         brandIdInput.val('');
-        brandModalLabel.text('Add New Brand');
+        $('#brandModalLabel').text('Add New Brand');
     }
 
-    function renderBrands(brands) {
-        const tbody = $('#brandTableBody');
-        tbody.empty();
-        if (brands.length === 0) {
-            tbody.append('<tr><td colspan="5" class="text-center">No brands found.</td></tr>');
-            return;
-        }
-
-        $.each(brands, function(index, brand) {
-            const imageUrl = brand.file_path ? `/storage/${brand.file_path}` : '/images/default.png';
-            const row = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${brand.name}</td>
-                    <td>${brand.category.name}</td>
-                    <td>${brand.file_path ? `<img src="${imageUrl}" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="${imageUrl}">` : 'No Image'}</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-info edit-btn" data-id="${brand.id}"><i class="fas fa-edit"></i> Edit</button>
-                        <button class="btn btn-sm btn-danger delete-btn" data-id="${brand.id}" data-name="${brand.name}"><i class="fas fa-trash-alt"></i> Delete</button>
-                    </td>
-                </tr>`;
-            tbody.append(row);
-        });
-    }
-
-    function fetchBrands() {
-        const sort = $('#sortBrands').val();
-        $.get('{{ route("brands.index") }}', { sort }, function(data) {
-            renderBrands(data);
-        }).fail(() => showAlert('Failed to load brands.', 'error'));
-    }
-
-    $('#searchInput').on('keyup', function() {
-        const search = $(this).val();
-        $.get('{{ route("brands.index") }}', { search }, function(data) {
-            renderBrands(data);
-        }).fail(() => showAlert('Search failed.', 'error'));
-    });
-
-    saveBrandBtn.on('click', function(e) {
+    saveBrandBtn.on('click', function (e) {
         e.preventDefault();
         const id = brandIdInput.val();
         const name = brandNameInput.val().trim();
@@ -191,6 +108,7 @@ $(document).ready(function() {
         formData.append('name', name);
         formData.append('category_id', category_id);
         if (file) formData.append('file', file);
+        formData.append('_token', '{{ csrf_token() }}');
         if (id) formData.append('_method', 'PUT');
 
         $.ajax({
@@ -199,17 +117,17 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
-            success: function() {
-                showAlert(`Brand ${id ? 'updated' : 'added'} successfully!`, 'success');
+            success: () => {
+                showAlert(`Brand ${id ? 'updated' : 'added'} successfully!`);
                 brandModal.hide();
                 clearForm();
-                fetchBrands();
+                brandTable.ajax.reload();
             },
-            error: function(xhr) {
+            error: xhr => {
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
                     let errorHtml = '';
-                    $.each(errors, function(key, messages) {
+                    $.each(errors, (key, messages) => {
                         errorHtml += `<div>${messages.join('<br>')}</div>`;
                     });
                     showAlert(errorHtml, 'error');
@@ -220,30 +138,28 @@ $(document).ready(function() {
         });
     });
 
-    $(document).on('click', '.edit-btn', function() {
+    $(document).on('click', '.edit-btn', function () {
         const id = $(this).data('id');
-        $.get(`/brands/${id}`, function(brand) {
+        $.get(`/brands/${id}`, brand => {
             brandIdInput.val(brand.id);
             brandNameInput.val(brand.name);
             brandCategoryInput.val(brand.category_id);
-            brandModalLabel.text('Edit Brand');
+            $('#brandModalLabel').text('Edit Brand');
             brandModal.show();
         }).fail(() => showAlert('Failed to fetch brand.', 'error'));
     });
 
-    $(document).on('click', '.delete-btn', function() {
+    $(document).on('click', '.delete-btn', function () {
         const id = $(this).data('id');
-        const name = $(this).data('name');
-
         Swal.fire({
-            title: `Delete "${name}"?`,
-            text: "This action cannot be undone!",
+            title: 'Are you sure?',
+            text: 'This action cannot be undone!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!',
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-        }).then((result) => {
+        }).then(result => {
             if (result.isConfirmed) {
                 $.ajax({
                     url: `/brands/${id}`,
@@ -252,13 +168,11 @@ $(document).ready(function() {
                         _method: 'DELETE',
                         _token: '{{ csrf_token() }}'
                     },
-                    success: function() {
-                        showAlert('Brand deleted successfully!', 'success');
-                        fetchBrands();
+                    success: () => {
+                        showAlert('Brand deleted successfully!');
+                        brandTable.ajax.reload();
                     },
-                    error: function() {
-                        showAlert('Failed to delete brand.', 'error');
-                    }
+                    error: () => showAlert('Failed to delete brand.', 'error')
                 });
             }
         });
@@ -266,17 +180,13 @@ $(document).ready(function() {
 
     addBrandBtn.on('click', function () {
         clearForm();
-        brandModal.show(); // ✅ Manual modal open
+        brandModal.show();
     });
 
     $(document).on('click', '.file-preview', function () {
         $('#previewImage').attr('src', $(this).data('src'));
         new bootstrap.Modal($('#filePreviewModal')).show();
     });
-
-    $('#sortBrands').on('change', fetchBrands);
-
-    fetchBrands();
 });
 </script>
 @endsection
