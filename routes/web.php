@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('brands', BrandController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+    Route::post('products/bulk-delete', [ProductController::class, 'bulkDelete'])->name('products.bulkDelete');
+
     // ... other routes ...
     // 🛍️ Frontend User Routes (Protected)
     // =====================

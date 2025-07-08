@@ -2,63 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\Product;
+use App\Models\{Brand, Category, Product};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Yajra\DataTables\DataTables;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $sort = $request->get('sort', 'newest');
-        $search = $request->get('search');
-
-        $query = Product::with(['category', 'brand']);
-
-        if (!empty($search)) {
-            $query->where('name', 'like', '%' . $search . '%');
-        }
-
-        switch ($sort) {
-            case 'oldest':
-                $query->orderBy('created_at', 'asc');
-                break;
-            case 'az':
-                $query->orderBy('name', 'asc');
-                break;
-            case 'za':
-                $query->orderBy('name', 'desc');
-                break;
-            case 'price_asc':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_desc':
-                $query->orderBy('price', 'desc');
-                break;
-            default:
-                $query->orderBy('created_at', 'desc');
-        }
-
-        $products = $query->get();
-
-        // Ensure price is always float in JSON response
-        $products->transform(function ($product) {
-            $product->price = (float) $product->price;
-            return $product;
-        });
-
         if ($request->ajax()) {
-            return response()->json($products);
+            $products = Product::with(['category', 'brand'])->latest();
+
+            return DataTables::of($products)
+                ->addIndexColumn()
+                ->addColumn('category.name', fn($row) => $row->category->name ?? '—')
+                ->addColumn('brand.name', fn($row) => $row->brand->name ?? '—')
+                ->addColumn('image', function ($row) {
+                    return $row->image;
+                })
+                ->addColumn('action', function ($row) {
+                    return '
+                        <button class="btn btn-sm btn-info edit-btn" data-id="' . $row->id . '">
+                            <i class="fas fa-edit"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="' . $row->id . '" data-name="' . $row->name . '">
+                            <i class="fas fa-trash-alt"></i>Delete
+                        </button>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
 
         $categories = Category::all();
         $brands = Brand::all();
-
-        return view('admin.products.index', compact('products', 'categories', 'brands'));
+        return view('admin.products.index', compact('categories', 'brands'));
     }
 
     public function store(Request $request)
@@ -125,7 +106,6 @@ class ProductController extends Controller
             if ($product->image && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
             }
-
             $product->image = $request->file('image')->store('uploads/products', 'public');
         }
 
@@ -158,5 +138,25 @@ class ProductController extends Controller
                 'message' => 'Cannot delete product. It is associated with other records.'
             ], 409);
         }
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        if (!is_array($ids) || empty($ids)) {
+            return response()->json(['message' => 'No products selected.'], 400);
+        }
+
+        $products = Product::whereIn('id', $ids)->get();
+
+        foreach ($products as $product) {
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $product->delete();
+        }
+
+        return response()->json(['message' => 'Selected products deleted successfully.']);
     }
 }

@@ -22,17 +22,18 @@ class BrandController extends Controller
                     return $row->category->name ?? '—';
                 })
                 ->addColumn('file_path', function ($row) {
-                    return '<img src="/storage/' . $row->file_path . '" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="/storage/' . $row->file_path . '">';
+                    $url = asset('storage/' . $row->file_path);
+                    return '<img src="' . $url . '" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="' . $url . '">';
                 })
                 ->addColumn('action', function ($row) {
                     return '
-                    <button class="btn btn-sm btn-info edit-btn" data-id="' . $row->id . '">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-btn" data-id="' . $row->id . '">
-                        <i class="fas fa-trash-alt"></i> Delete
-                    </button>
-                ';
+                        <button class="btn btn-sm btn-info edit-btn" data-id="' . $row->id . '">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-btn" data-id="' . $row->id . '">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    ';
                 })
                 ->rawColumns(['file_path', 'action', 'category.name'])  // Allow raw HTML
                 ->make(true);

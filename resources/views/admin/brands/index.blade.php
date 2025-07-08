@@ -4,13 +4,13 @@
 <div class="container dashboard-card">
     <h2>Brands List</h2>
 
-    <div class="mb-3 d-flex justify-content-end">
+    <div id="alertContainer"></div>
+
+    <div class="d-flex justify-content-end mb-3">
         <button class="btn btn-primary" id="addBrandBtn">
             <i class="fas fa-plus-circle me-1"></i> Add Brand
         </button>
     </div>
-
-    <div id="alertContainer"></div>
 
     <div class="table-responsive">
         <table id="brandTable" class="table table-striped table-hover w-100">
@@ -29,7 +29,6 @@
 
 @include('admin.brands.edit')
 
-{{-- ✅ File Preview Modal --}}
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -46,7 +45,11 @@
 @endsection
 
 @section('scripts')
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- DataTables -->
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
@@ -63,14 +66,28 @@ $(document).ready(function () {
     const brandTable = $('#brandTable').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: '{{ route("brands.index") }}',
         columns: [
-            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-            { data: 'name', name: 'name' },
-            { data: 'category.name', name: 'category.name' },
-            { data: 'file_path', name: 'file_path', orderable: false, searchable: false },
-            { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
-        ]
+    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+    { data: 'name', name: 'name' },
+    { data: 'category.name', name: 'category.name' },
+    { 
+        data: 'file_path', 
+        name: 'file_path', 
+        orderable: false, 
+        searchable: false 
+        // ✅ Don't add any render() function here!
+    },
+    { 
+        data: 'action', 
+        name: 'action', 
+        orderable: false, 
+        searchable: false, 
+        className: 'text-center' 
+    }
+]
+
     });
 
     function showAlert(message, type = 'success') {
@@ -87,8 +104,8 @@ $(document).ready(function () {
     }
 
     function clearForm() {
-        brandForm[0].reset();
         brandIdInput.val('');
+        brandForm[0].reset();
         $('#brandModalLabel').text('Add New Brand');
     }
 
