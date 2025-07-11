@@ -49,7 +49,8 @@ Route::middleware(['auth'])->group(function () {
     // ... other routes ...
     // 🛍️ Frontend User Routes (Protected)
     // =====================
-    Route::get('/home', action: [HomeController::class, 'index'])->name('home');
+
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/allproducts', action: [PageController::class, 'allproducts'])->name('allproducts');
     Route::get('/product/{id}', [PageController::class, 'productDetails'])->name('product.details');
     Route::get('/cart', [PageController::class, 'cart'])->name('cart');

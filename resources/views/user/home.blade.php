@@ -4,427 +4,236 @@
 
 @section('content')
 
-<!-- Hero Section with Animation -->
-<section class="hero-section position-relative overflow-hidden">
-    <div class="container py-7 py-lg-8 position-relative z-index-1">
-        <div class="row justify-content-center text-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-4 text-white animate__animated animate__fadeInDown">Welcome to ShopNow</h1>
-                <p class="lead text-white-80 mb-5 animate__animated animate__fadeIn animate__delay-1s">Discover the best deals on top-rated products with free shipping on orders over $50</p>
-                <div class="d-flex justify-content-center gap-3 animate__animated animate__fadeIn animate__delay-2s">
-                    <a href="{{ route('allproducts') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill fw-medium shadow-sm">
+<!-- Hero Section -->
+<section class="hero-section position-relative text-white bg-dark overflow-hidden">
+    <div class="container py-7 py-lg-8 position-relative z-1 text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInDown">Welcome to ShopNow</h1>
+                <p class="lead mb-5 animate__animated animate__fadeIn animate__delay-1s">
+                    Discover top-rated products with free shipping on orders over $50
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3 animate__animated animate__fadeIn animate__delay-2s">
+                    <a href="{{ route('allproducts') }}" class="btn btn-light btn-lg px-4 py-2 rounded-pill shadow">
                         Shop Now <i class="fas fa-arrow-right ms-2"></i>
                     </a>
-                    <a href="#featured-products" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fw-medium">
+                    <a href="{{ route('allproducts') }}" class="btn btn-outline-light btn-lg px-4 py-2 rounded-pill">
                         Featured Products
                     </a>
                 </div>
             </div>
         </div>
     </div>
-    <div class="hero-shapes">
-        <div class="shape-1"></div>
-        <div class="shape-2"></div>
-        <div class="shape-3"></div>
+</section>
+
+<!-- Categories Carousel -->
+<section class="my-5">
+    <div class="container">
+        
+        <!-- Heading and View All Button -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h2 class="fw-bold mb-0">Shop by Category</h2>
+            <a href="{{ route('allcate') }}" class="btn btn-outline-primary btn-sm">View All Categories</a>
+        </div>
+
+        <!-- Carousel Scroll Row -->
+        <div class="overflow-auto d-flex flex-nowrap px-2" id="categoryCarousel" style="scroll-behavior: smooth;">
+            @foreach ($categories as $category)
+                <div class="card me-3 text-center shadow-sm flex-shrink-0" style="width: 160px;">
+                    <img src="{{ $category->file_path ? asset('storage/' . $category->file_path) : asset('images/default-category.png') }}"
+                         class="card-img-top img-fluid rounded" style="height: 100px; object-fit: cover;" alt="{{ $category->name }}">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">{{ $category->name }}</h6>
+                        <a href="{{ route('allproducts') }}" class="btn btn-outline-primary btn-sm w-100">Explore</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Arrows in New Row (Always Visible) -->
+        <div class="d-flex justify-content-center mt-3 gap-3">
+            <button class="btn btn-outline-primary" id="categoryPrev">
+                <i class="fas fa-chevron-left me-1"></i> Previous
+            </button>
+            <button class="btn btn-outline-primary" id="categoryNext">
+                Next <i class="fas fa-chevron-right ms-1"></i>
+            </button>
+        </div>
+    </div>
+</section>
+<!-- Brands Carousel -->
+<section class="my-5">
+    <div class="container">
+        <!-- Heading + View All -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h2 class="fw-bold mb-0">Shop by Brand</h2>
+            <a href="{{ route('allbrands') }}" class="btn btn-outline-primary btn-sm">View All Brands</a>
+        </div>
+
+        <!-- Carousel Scroll Row -->
+        <div class="overflow-auto d-flex flex-nowrap px-2" id="brandCarousel" style="scroll-behavior: smooth;">
+            @foreach ($brands as $brand)
+                <div class="card me-3 text-center shadow-sm flex-shrink-0" style="width: 160px;">
+                    <img src="{{ $brand->file_path ? asset('storage/' . $brand->file_path) : asset('images/default-brand.png') }}"
+                         class="card-img-top img-fluid rounded" style="height: 100px; object-fit: cover;" alt="{{ $brand->name }}">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">{{ $brand->name }}</h6>
+                        <a href="{{ route('allproducts') }}" class="btn btn-outline-primary btn-sm w-100">Explore</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        <!-- Arrow Buttons Row -->
+        <div class="d-flex justify-content-center mt-3 gap-3">
+            <button class="btn btn-outline-primary" id="brandPrev">
+                <i class="fas fa-chevron-left me-1"></i> Previous
+            </button>
+            <button class="btn btn-outline-primary" id="brandNext">
+                Next <i class="fas fa-chevron-right ms-1"></i>
+            </button>
+        </div>
     </div>
 </section>
 
-<!<!-- Categories Section -->
-<!-- Categories Carousel Section -->
-@include('user.carouselSection.categories-carousel')
-
-<!-- Category Image Preview Modal -->
-<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-white rounded">
-      <div class="modal-body text-center">
-        <img id="previewImage" src="" class="img-fluid rounded shadow" alt="Category Preview">
-      </div>
+<!-- Latest Products -->
+<section class="my-5">
+    <div class="container">
+        <h4 class="fw-bold mb-4">Latest Products</h4>
+        <div class="row g-3">
+            @foreach ($products as $product)
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    <div class="card h-100 shadow-sm text-center">
+                        <div class="overflow-hidden">
+                            <img src="{{ asset('storage/' . ($product->image ?? 'images/default-product.png')) }}"
+                                 class="card-img-top img-fluid rounded product-hover"
+                                 style="height: 120px; object-fit: cover; transition: transform 0.3s;">
+                        </div>
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">{{ Str::limit($product->name, 20) }}</h6>
+                            <p class="text-muted small mb-1">PKR {{ number_format($product->price) }}</p>
+                            <a href="{{ url('/product/' . $product->id) }}" class="btn btn-outline-primary btn-sm w-100">View</a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
     </div>
-  </div>
-</div>
+</section>
 
-<!-- Brands Section -->
-@include('user.carouselSection.brands-carousel')
-<!-- Brand Image Preview Modal -->
-<div class="modal fade" id="brandModal" tabindex="-1" aria-labelledby="brandModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-white rounded">
-      <div class="modal-body text-center">
-        <img id="previewBrandImage" src="" class="img-fluid rounded shadow" alt="Brand Preview">
-      </div>
+<!-- Newsletter -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-3">Subscribe to Our Newsletter</h2>
+        <p class="mb-4">Get the latest updates on new products and upcoming sales</p>
+        <form id="newsletter-form" class="row g-2 justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="input-group input-group-lg">
+                    <input type="email" class="form-control" placeholder="Your email address" required>
+                    <button class="btn btn-dark px-4" type="submit">Subscribe</button>
+                </div>
+            </div>
+        </form>
     </div>
-  </div>
-</div>
+</section>
+<!-- Professional Dynamic Home Page: Blade Version -->
 
-<!-- Featured Products Section -->
-@include('user.partials.featured-products')
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            @foreach($features as $feature)
+                <div class="col-md-3 col-6 mb-4">
+                    <i class="{{ $feature['icon'] }} fa-2x text-primary mb-2"></i>
+                    <h6 class="fw-bold">{{ $feature['title'] }}</h6>
+                    <p class="text-muted small">{{ $feature['description'] }}</p>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 
-<!-- Newsletter Section -->
-@include('user.partials.newsletter')
+<!-- Promotional Banner -->
+@if($promo)
+<section class="py-5 bg-dark text-white text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-3">{{ $promo['title'] }}</h2>
+        <p class="mb-4">{{ $promo['subtitle'] }}</p>
+        <a href="{{ $promo['url'] }}" class="btn btn-outline-light btn-lg px-5 py-2">{{ $promo['button_text'] }}</a>
+    </div>
+</section>
+@endif
+
+<!-- Testimonials -->
+@if(count($testimonials))
+<section class="py-5 bg-light">
+    <div class="container">
+        <h4 class="text-center fw-bold mb-5">What Our Customers Say</h4>
+        <div class="row">
+            @foreach($testimonials as $testimonial)
+                <div class="col-md-4 mb-4">
+                    <div class="bg-white p-4 shadow-sm rounded h-100">
+                        <p class="text-muted">"{{ $testimonial['message'] }}"</p>
+                        <div class="d-flex align-items-center mt-3">
+                            <img src="{{ $testimonial['avatar'] }}" class="rounded-circle me-2" alt="User Avatar">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ $testimonial['name'] }}</h6>
+                                <small class="text-muted">{{ $testimonial['location'] }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+<!-- Blog Preview -->
+@if(count($blogs))
+<section class="py-5">
+    <div class="container">
+        <h4 class="fw-bold mb-4 text-center">Latest from Our Blog</h4>
+        <div class="row g-4">
+            @foreach($blogs as $blog)
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="{{ asset('storage/' . $blog->image) }}" class="card-img-top" alt="Blog Image">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold">{{ Str::limit($blog->title, 50) }}</h6>
+                            <p class="text-muted small">{{ Str::limit($blog->excerpt, 80) }}</p>
+                            <a href="{{ route('blog.show', $blog->slug) }}" class="btn btn-sm btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
 @endsection
 
-
-
-
+@push('styles')
+<style>
+    .product-hover:hover {
+        transform: scale(1.05);
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
-    $(document).ready(function () {
-        // Load categories with skeleton loader
-        loadCategories();
-        
-        // Load brands with skeleton loader
-        loadBrands();
-        
-        // Load featured products with skeleton loader
-        loadFeaturedProducts();
-        
-        // Newsletter form submission
-        $('#newsletter-form').submit(function(e) {
-            e.preventDefault();
-            const email = $(this).find('input[type="email"]').val();
-            
-            $.ajax({
-                url: '/api/newsletter/subscribe',
-                method: 'POST',
-                data: { email: email },
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                beforeSend: function() {
-                    $('#newsletter-form button').prop('disabled', true)
-                        .html('<span class="spinner-border spinner-border-sm me-2" role="status"></span> Subscribing...');
-                },
-                success: function(res) {
-                    showToast('success', 'Subscribed successfully! Thank you.');
-                    $('#newsletter-form')[0].reset();
-                },
-                error: function(xhr) {
-                    const message = xhr.responseJSON?.message || 'Subscription failed. Please try again.';
-                    showToast('error', message);
-                },
-                complete: function() {
-                    $('#newsletter-form button').prop('disabled', false).text('Subscribe');
-                }
-            });
+    const scrollCarousel = (id, dir) => {
+        document.getElementById(id).scrollBy({
+            left: dir * 200,
+            behavior: 'smooth'
         });
-    });
-    
-    function loadCategories() {
-        $.ajax({
-            url: '/api/categories',
-            method: 'GET',
-            beforeSend: function() {
-                $('#categories-section').html(`
-                    <div class="col-12">
-                        <div class="row">
-                            ${Array(6).fill().map(() => `
-                                <div class="col-6 col-md-3 col-lg-2 mb-4">
-                                    <div class="card h-100 border-0 placeholder-glow">
-                                        <div class="card-body p-3 text-center">
-                                            <div class="mb-3 placeholder" style="height: 80px; width: 80px; margin: 0 auto;"></div>
-                                            <h6 class="card-title placeholder mb-0" style="width: 80%"></h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `);
-            },
-            success: function (response) {
-                if (response.categories?.length > 0) {
-                    let html = response.categories.map(category => `
-                        <div class="col-6 col-md-3 col-lg-2 mb-4">
-                            <a href="/products?category=${category.id}" class="text-decoration-none">
-                                <div class="card h-100 shadow-sm border-0 text-center hover-scale">
-                                    <div class="card-body p-3">
-                                        <div class="mb-3 mx-auto" style="height: 80px; width: 80px; display: flex; align-items: center; justify-content: center;">
-                                            <img src="${category.image || 'https://via.placeholder.com/80'}" 
-                                                 alt="${category.name}" 
-                                                 class="img-fluid rounded-circle" 
-                                                 style="max-height: 100%; max-width: 100%; object-fit: cover;">
-                                        </div>
-                                        <h6 class="card-title text-dark mb-0">${category.name}</h6>
-                                        <small class="text-muted">${category.product_count || 0} items</small>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    `).join('');
-                    
-                    $('#categories-section').html(html);
-                } else {
-                    $('#categories-section').html(`
-                        <div class="col-12 text-center py-5">
-                            <div class="alert alert-info">
-                                No categories found. Please check back later.
-                            </div>
-                        </div>
-                    `);
-                }
-            },
-            error: function (xhr) {
-                console.error('Error loading categories:', xhr.responseText);
-                $('#categories-section').html(`
-                    <div class="col-12 text-center py-5">
-                        <div class="alert alert-danger">
-                            Failed to load categories. Please try again later.
-                        </div>
-                    </div>
-                `);
-            }
-        });
-    }
-    
-    function loadBrands() {
-        $.ajax({
-            url: '/api/brands',
-            method: 'GET',
-            beforeSend: function() {
-                $('#brands-section').html(`
-                    <div class="col-12">
-                        <div class="row">
-                            ${Array(6).fill().map(() => `
-                                <div class="col-6 col-md-3 col-lg-2 mb-4">
-                                    <div class="card h-100 border-0 placeholder-glow">
-                                        <div class="card-body p-3 text-center">
-                                            <div class="mb-3 placeholder" style="height: 80px; width: 80px; margin: 0 auto;"></div>
-                                            <h6 class="card-title placeholder mb-0" style="width: 80%"></h6>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `);
-            },
-            success: function (response) {
-                if (response.brands?.length > 0) {
-                    let html = response.brands.map(brand => `
-                        <div class="col-6 col-md-3 col-lg-2 mb-4">
-                            <a href="/products?brand=${brand.id}" class="text-decoration-none">
-                                <div class="card h-100 shadow-sm border-0 text-center hover-scale">
-                                    <div class="card-body p-3">
-                                        <div class="mb-3 mx-auto" style="height: 80px; width: 80px; display: flex; align-items: center; justify-content: center;">
-                                            <img src="${brand.logo || brand.image || 'https://via.placeholder.com/80'}" 
-                                                 alt="${brand.name}" 
-                                                 class="img-fluid" 
-                                                 style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                                        </div>
-                                        <h6 class="card-title text-dark mb-0">${brand.name}</h6>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    `).join('');
-                    
-                    $('#brands-section').html(html);
-                } else {
-                    $('#brands-section').html(`
-                        <div class="col-12 text-center py-5">
-                            <div class="alert alert-info">
-                                No brands found. Please check back later.
-                            </div>
-                        </div>
-                    `);
-                }
-            },
-            error: function (xhr) {
-                console.error('Error loading brands:', xhr.responseText);
-                $('#brands-section').html(`
-                    <div class="col-12 text-center py-5">
-                        <div class="alert alert-danger">
-                            Failed to load brands. Please try again later.
-                        </div>
-                    </div>
-                `);
-            }
-        });
-    }
-    
-    function loadFeaturedProducts() {
-        $.ajax({
-            url: '/api/featured-products',
-            method: 'GET',
-            beforeSend: function() {
-                $('#featured-products').html(`
-                    ${Array(3).fill().map(() => `
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 border-0 shadow-sm placeholder-glow">
-                                <div class="placeholder" style="height: 250px;"></div>
-                                <div class="card-body">
-                                    <h5 class="card-title placeholder" style="width: 80%"></h5>
-                                    <p class="card-text placeholder mb-2" style="width: 60%"></p>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="placeholder" style="width: 40%; height: 38px;"></div>
-                                        <div class="placeholder" style="width: 38px; height: 38px;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                `);
-            },
-            success: function (response) {
-                if (response.products?.length > 0) {
-                    let html = response.products.map(product => `
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 border-0 shadow-sm product-card">
-                                <div class="position-relative">
-                                    <img src="${product.image}" 
-                                         class="card-img-top" 
-                                         alt="${product.name}" 
-                                         style="height: 250px; object-fit: cover;">
-                                    ${product.discount ? `
-                                        <span class="badge bg-danger position-absolute top-0 end-0 m-2">
-                                            ${product.discount}% OFF
-                                        </span>
-                                    ` : ''}
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">${product.name}</h5>
-                                    <p class="card-text text-muted mb-2">${product.category?.name || ''}</p>
-                                    <div class="d-flex align-items-center mb-2">
-                                        ${product.rating ? `
-                                            <div class="me-2">
-                                                ${Array(5).fill().map((_, i) => `
-                                                    <i class="fas fa-star ${i < Math.round(product.rating) ? 'text-warning' : 'text-secondary'}"></i>
-                                                `).join('')}
-                                                <small class="text-muted ms-1">(${product.review_count || 0})</small>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                    <div class="mt-auto">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <p class="fw-bold mb-0 me-2">PKR ${product.discounted_price || product.price}</p>
-                                            ${product.discounted_price ? `
-                                                <p class="text-muted text-decoration-line-through mb-0">PKR ${product.price}</p>
-                                            ` : ''}
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <a href="/product/${product.id}" class="btn btn-primary flex-grow-1 me-2">
-                                                View Details
-                                            </a>
-                                            <button class="btn btn-outline-danger wishlist-btn ${product.is_in_wishlist ? 'active' : ''}" 
-                                                    data-id="${product.id}">
-                                                <i class="fas ${product.is_in_wishlist ? 'fa-heart' : 'fa-heart'}"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    
-                    $('#featured-products').html(html);
-                } else {
-                    $('#featured-products').html(`
-                        <div class="col-12 text-center py-5">
-                            <div class="alert alert-info">
-                                No featured products found. Please check back later.
-                            </div>
-                        </div>
-                    `);
-                }
-            },
-            error: function (xhr) {
-                console.error('Error loading featured products:', xhr.responseText);
-                $('#featured-products').html(`
-                    <div class="col-12 text-center py-5">
-                        <div class="alert alert-danger">
-                            Failed to load featured products. ${xhr.responseJSON?.message || ''}
-                        </div>
-                    </div>
-                `);
-            }
-        });
-    }
-    
-    // Wishlist toggle handler
-    $(document).on('click', '.wishlist-btn', function () {
-        const $btn = $(this);
-        const productId = $btn.data('id');
-        
-        $.ajax({
-            url: '/api/wishlist/toggle',
-            method: 'POST',
-            data: { product_id: productId },
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            beforeSend: function() {
-                $btn.prop('disabled', true);
-            },
-            success: function (res) {
-                $btn.toggleClass('active');
-                $btn.find('i').toggleClass('fa-heart fa-heart');
-                showToast('success', res.message || 'Wishlist updated!');
-            },
-            error: function (xhr) {
-                const message = xhr.responseJSON?.message || 'Failed to update wishlist.';
-                showToast('error', message);
-            },
-            complete: function() {
-                $btn.prop('disabled', false);
-            }
-        });
-    });
-    
-    // Toast notification function
-    function showToast(type, message) {
-        const toast = $(`
-            <div class="toast align-items-center text-white bg-${type} border-0 position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        `);
-        
-        $('body').append(toast);
-        const bsToast = new bootstrap.Toast(toast[0]);
-        bsToast.show();
-        
-        toast.on('hidden.bs.toast', function () {
-            $(this).remove();
-        });
-    }
+    };
+
+    document.getElementById('categoryNext')?.addEventListener('click', () => scrollCarousel('categoryCarousel', 1));
+    document.getElementById('categoryPrev')?.addEventListener('click', () => scrollCarousel('categoryCarousel', -1));
+    document.getElementById('brandNext')?.addEventListener('click', () => scrollCarousel('brandCarousel', 1));
+    document.getElementById('brandPrev')?.addEventListener('click', () => scrollCarousel('brandCarousel', -1));
 </script>
-<script>
-  function previewCategoryImage(src) {
-    document.getElementById('previewImage').src = src;
-}
-function previewBrandImage(src) {
-    document.getElementById('previewBrandImage').src = src;
-}
-
-</script>
-<script>
-    $(document).ready(function () {
-        const $carousel = $('#categoryCarousel');
-
-        $('#categoryPrev').on('click', function () {
-            $carousel.animate({ scrollLeft: '-=200' }, 300);
-        });
-
-        $('#categoryNext').on('click', function () {
-            $carousel.animate({ scrollLeft: '+=200' }, 300);
-        });
-        const $carouselBrand = $('#brandCarousel');
-        $('#brandPrev').on('click', function () {
-            $carouselBrand.animate({ scrollLeft: '-=200' }, 300);
-        });
-        $('#brandNext').on('click', function () {
-            $carouselBrand.animate({ scrollLeft: '+=200' }, 300);
-        });
-    });
-
-    
-</script>
-
 @endpush

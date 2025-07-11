@@ -25,7 +25,7 @@ class BrandController extends Controller
                     $url = asset('storage/' . $row->file_path);
                     return '<img src="' . $url . '" width="50" height="50" style="object-fit:cover;cursor:pointer" class="file-preview" data-src="' . $url . '">';
                 })
-                ->addColumn('action', function ($row) {
+                ->addColumn('action', function ($row): string {
                     return '
                         <button class="btn btn-sm btn-info edit-btn" data-id="' . $row->id . '">
                             <i class="fas fa-edit"></i> Edit

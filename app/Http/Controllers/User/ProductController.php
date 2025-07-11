@@ -14,7 +14,7 @@ class ProductController extends Controller
 
         // Category filter
         if ($request->has('category_id')) {
-            $query->where('category_id', $request->category_id);
+            $query->where(column: 'category_id', operator: $request->category_id);
         }
 
         // Price range filter
