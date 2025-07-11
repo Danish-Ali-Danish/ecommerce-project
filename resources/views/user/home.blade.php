@@ -29,7 +29,6 @@
 <!-- Categories Carousel -->
 <section class="my-5">
     <div class="container">
-        
         <!-- Heading and View All Button -->
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h2 class="fw-bold mb-0">Shop by Category</h2>
@@ -136,81 +135,6 @@
         </form>
     </div>
 </section>
-<!-- Professional Dynamic Home Page: Blade Version -->
-
-<!-- Features Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row text-center">
-            @foreach($features as $feature)
-                <div class="col-md-3 col-6 mb-4">
-                    <i class="{{ $feature['icon'] }} fa-2x text-primary mb-2"></i>
-                    <h6 class="fw-bold">{{ $feature['title'] }}</h6>
-                    <p class="text-muted small">{{ $feature['description'] }}</p>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-<!-- Promotional Banner -->
-@if($promo)
-<section class="py-5 bg-dark text-white text-center">
-    <div class="container">
-        <h2 class="fw-bold mb-3">{{ $promo['title'] }}</h2>
-        <p class="mb-4">{{ $promo['subtitle'] }}</p>
-        <a href="{{ $promo['url'] }}" class="btn btn-outline-light btn-lg px-5 py-2">{{ $promo['button_text'] }}</a>
-    </div>
-</section>
-@endif
-
-<!-- Testimonials -->
-@if(count($testimonials))
-<section class="py-5 bg-light">
-    <div class="container">
-        <h4 class="text-center fw-bold mb-5">What Our Customers Say</h4>
-        <div class="row">
-            @foreach($testimonials as $testimonial)
-                <div class="col-md-4 mb-4">
-                    <div class="bg-white p-4 shadow-sm rounded h-100">
-                        <p class="text-muted">"{{ $testimonial['message'] }}"</p>
-                        <div class="d-flex align-items-center mt-3">
-                            <img src="{{ $testimonial['avatar'] }}" class="rounded-circle me-2" alt="User Avatar">
-                            <div>
-                                <h6 class="mb-0 fw-bold">{{ $testimonial['name'] }}</h6>
-                                <small class="text-muted">{{ $testimonial['location'] }}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
-
-<!-- Blog Preview -->
-@if(count($blogs))
-<section class="py-5">
-    <div class="container">
-        <h4 class="fw-bold mb-4 text-center">Latest from Our Blog</h4>
-        <div class="row g-4">
-            @foreach($blogs as $blog)
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="{{ asset('storage/' . $blog->image) }}" class="card-img-top" alt="Blog Image">
-                        <div class="card-body">
-                            <h6 class="card-title fw-bold">{{ Str::limit($blog->title, 50) }}</h6>
-                            <p class="text-muted small">{{ Str::limit($blog->excerpt, 80) }}</p>
-                            <a href="{{ route('blog.show', $blog->slug) }}" class="btn btn-sm btn-outline-primary">Read More</a>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-@endif
 
 @endsection
 
